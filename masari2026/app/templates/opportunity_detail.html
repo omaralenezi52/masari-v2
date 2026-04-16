@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% block title %}{{ opp.title }} — مساري{% endblock %}
+{% block extra_css %}
+<style>
+.detail-wrap { max-width: 860px; }
+
+.detail-hero {
+  background: linear-gradient(135deg, var(--primary-d), #1A4A8F);
+  border-radius: var(--radius-lg);
+  padding: 2rem 2.2rem;
+  color: var(--white);
+  margin-bottom: 1.4rem;
+}
+.detail-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.detail-badges { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .7rem; }
+.detail-title {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 1.55rem;
+  line-height: 1.28;
+  margin-bottom: .4rem;
+}
+.detail-company { opacity: .78; font-size: .9rem; }
+.detail-date { font-size: .8rem; opacity: .55; white-space: nowrap; }
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: .7rem;
+  margin-bottom: 1.2rem;
+}
+.info-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+}
+.info-card-label { font-size: .74rem; color: var(--muted); margin-bottom: .15rem; }
+.info-card-value { font-family: 'Cairo', sans-serif; font-weight: 700; color: var(--primary-d); font-size: .9rem; }
+
+.skills-wrap { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+.skill-pill {
+  background: #EEF4FF;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
+  padding: .22rem .7rem;
+  border-radius: 8px;
+  font-size: .8rem;
+  font-weight: 600;
+}
+.cert-pill {
+  background: #F0FDF4;
+  color: #15803D;
+  border: 1px solid #BBF7D0;
+  padding: .22rem .7rem;
+  border-radius: 8px;
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+.detail-section { margin-bottom: 1.4rem; }
+.detail-section h3 {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--primary-d);
+  margin-bottom: .6rem;
+  padding-bottom: .4rem;
+  border-bottom: 2px solid var(--border-l);
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.detail-content {
+  line-height: 2;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  font-size: .91rem;
+}
+
+/* شريط الإجراءات */
+.action-bar {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  gap: .8rem;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+}
+.owner-notice {
+  background: var(--warning-bg);
+  border: 1px solid #FDE68A;
+  border-radius: var(--radius);
+  padding: .7rem 1rem;
+  font-size: .85rem;
+  color: #92400E;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+}
+.applied-notice {
+  background: var(--success-bg);
+  border: 1px solid #BBF7D0;
+  border-radius: var(--radius);
+  padding: .7rem 1rem;
+  font-size: .85rem;
+  color: #15803D;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+@media (max-width: 600px) {
+  .detail-hero { padding: 1.5rem; }
+  .detail-title { font-size: 1.25rem; }
+  .info-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-wrap">
+
+  <a href="{{ url_for('opportunities.home') }}" class="btn btn-ghost btn-sm" style="margin-bottom:1rem;">
+    → العودة للرئيسية
+  </a>
+
+  <!-- Hero الفرصة -->
+  <div class="detail-hero">
+    <div class="detail-hero-top">
+      <div style="flex:1;">
+        <div class="detail-badges">
+          {% if opp.type == 'وظيفة' %}<span class="badge badge-job">{{ opp.type }}</span>
+          {% elif opp.type == 'تدريب' %}<span class="badge badge-training">{{ opp.type }}</span>
+          {% elif opp.type == 'دورة' %}<span class="badge badge-course">{{ opp.type }}</span>
+          {% elif opp.type == 'تمهير' %}<span class="badge badge-tamheer">{{ opp.type }}</span>
+          {% elif opp.type == 'عمل حر' %}<span class="badge badge-freelance">{{ opp.type }}</span>
+          {% else %}<span class="badge badge-volunteer">{{ opp.type }}</span>{% endif %}
+          {% if opp.work_type %}<span class="badge badge-muted">{{ opp.work_type }}</span>{% endif %}
+          {% if opp.gender_preference and opp.gender_preference != 'الجميع' %}
+            <span class="badge" style="background:rgba(255,255,255,.15);color:#fff;">{{ opp.gender_preference }}</span>
+          {% endif %}
+        </div>
+        <div class="detail-title">{{ opp.title }}</div>
+        <div class="detail-company">
+          🏢 {{ opp.company }}{% if opp.location %} &nbsp;·&nbsp; 📍 {{ opp.location }}{% endif %}
+        </div>
+      </div>
+      <div class="detail-date">نُشرت {{ opp.date_posted.strftime('%d/%m/%Y') }}</div>
+    </div>
+
+    <!-- إحصائية المتقدمين لصاحب الفرصة -->
+    {% if is_owner %}
+    <div style="display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.12);border-radius:10px;padding:.5rem 1rem;font-size:.85rem;margin-top:.5rem;">
+      👥 {{ opp.applications | length }} متقدم حتى الآن
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- معلومات سريعة -->
+  <div class="info-grid">
+    {% if opp.min_education %}
+    <div class="info-card">
+      <div class="info-card-label">المؤهل المطلوب</div>
+      <div class="info-card-value">🎓 {{ opp.min_education }} فأعلى</div>
+    </div>
+    {% endif %}
+    {% if opp.min_experience %}
+    <div class="info-card">
+      <div class="info-card-label">الخبرة المطلوبة</div>
+      <div class="info-card-value">📅 {{ opp.min_experience }}</div>
+    </div>
+    {% endif %}
+    {% if opp.salary_range %}
+    <div class="info-card">
+      <div class="info-card-label">الراتب / المكافأة</div>
+      <div class="info-card-value">💰 {{ opp.salary_range }}</div>
+    </div>
+    {% endif %}
+    {% if opp.deadline %}
+    <div class="info-card">
+      <div class="info-card-label">آخر موعد للتقديم</div>
+      <div class="info-card-value">⏰ {{ opp.deadline.strftime('%d/%m/%Y') }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- المهارات المطلوبة -->
+  {% if opp.required_skills %}
+  <div class="card card-static" style="margin-bottom:1.2rem;">
+    <div class="card-body">
+      <div class="detail-section" style="margin-bottom:0;">
+        <h3>🛠 المهارات المطلوبة</h3>
+        <div class="skills-wrap">
+          {% for skill in opp.required_skills.split(',') %}
+            <span class="skill-pill">{{ skill.strip() }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% if opp.required_certifications %}
+      <hr class="divider">
+      <div class="detail-section" style="margin-bottom:0;">
+        <h3>📜 الشهادات المطلوبة</h3>
+        <div class="skills-wrap">
+          {% for cert in opp.required_certifications.split(',') %}
+            <span class="cert-pill">{{ cert.strip() }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- تفاصيل الفرصة -->
+  <div class="card card-static" style="margin-bottom:1.2rem;">
+    <div class="card-body">
+
+      {% if opp.responsibilities %}
+      <div class="detail-section">
+        <h3>📋 المهام والمسؤوليات</h3>
+        <div class="detail-content">{{ opp.responsibilities }}</div>
+      </div>
+      <hr class="divider">
+      {% endif %}
+
+      <div class="detail-section">
+        <h3>📄 وصف الفرصة</h3>
+        <div class="detail-content">{{ opp.description }}</div>
+      </div>
+
+      {% if opp.benefits %}
+      <hr class="divider">
+      <div class="detail-section" style="margin-bottom:0;">
+        <h3>🎁 المزايا والتعويضات</h3>
+        <div class="detail-content">{{ opp.benefits }}</div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- شريط الإجراءات -->
+  <div class="action-bar">
+    {% if current_user.is_authenticated %}
+      {% if is_owner %}
+        <div class="owner-notice">
+          ⚠️ أنت ناشر هذه الفرصة — لا يمكنك التقديم عليها.
+        </div>
+        <a href="{{ url_for('opportunities.view_applicants', opp_id=opp.id) }}" class="btn btn-primary btn-lg">
+          عرض المتقدمين ({{ opp.applications | length }})
+        </a>
+        <a href="{{ url_for('opportunities.edit_opportunity', opp_id=opp.id) }}" class="btn btn-outline btn-lg">تعديل</a>
+        <form method="POST" action="{{ url_for('opportunities.delete_opportunity', opp_id=opp.id) }}"
+              style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذه الفرصة؟ لا يمكن التراجع.')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger btn-lg">حذف الفرصة</button>
+        </form>
+      {% elif already_applied %}
+        <div class="applied-notice">✅ لقد تقدمت لهذه الفرصة مسبقاً</div>
+        <a href="{{ url_for('opportunities.my_applications') }}" class="btn btn-outline btn-lg">تتبع طلباتي</a>
+      {% else %}
+        <a href="{{ url_for('opportunities.apply', opp_id=opp.id) }}" class="btn btn-gold btn-lg">تقدّم لهذه الفرصة</a>
+        <span style="font-size:.82rem;color:var(--muted);">مجاني — يستغرق أقل من 5 دقائق</span>
+      {% endif %}
+      {% if current_user.role == 'admin' and not is_owner %}
+        <a href="{{ url_for('opportunities.view_applicants', opp_id=opp.id) }}" class="btn btn-outline btn-lg">عرض المتقدمين (أدمن)</a>
+      {% endif %}
+    {% else %}
+      <a href="{{ url_for('accounts.login') }}" class="btn btn-gold btn-lg">سجّل الدخول للتقديم</a>
+      <a href="{{ url_for('accounts.register') }}" class="btn btn-outline btn-lg">إنشاء حساب مجاني</a>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

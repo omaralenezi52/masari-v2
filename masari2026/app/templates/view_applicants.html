@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+{% block title %}المتقدمون — {{ opp.title }} — مساري{% endblock %}
+{% block extra_css %}
+<style>
+.applicants-wrap { max-width: 920px; }
+
+/* شريط الملخص */
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .8rem;
+  margin-bottom: 1.5rem;
+}
+.summary-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.summary-num {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.summary-lbl { font-size: .78rem; color: var(--muted); margin-top: .2rem; }
+
+/* بطاقة المتقدم */
+.app-card { margin-bottom: 1rem; }
+.app-card .card-body { padding: 1.4rem 1.6rem; }
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: .8rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-l);
+}
+.app-user-info { display: flex; align-items: center; gap: .9rem; }
+.app-avatar {
+  width: 46px;
+  height: 46px;
+  background: var(--primary);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(26,74,143,.2);
+}
+.app-name {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  font-size: .98rem;
+  color: var(--ink);
+}
+.app-date { font-size: .76rem; color: var(--muted); margin-top: .1rem; }
+
+/* مؤشر التوافق */
+.compat-display {
+  text-align: center;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+.compat-pct {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.compat-lbl { font-size: .7rem; color: var(--muted); margin-top: .1rem; }
+.compat-mini { width: 72px; height: 6px; border-radius: 20px; background: var(--border); overflow: hidden; margin: .3rem auto 0; }
+.compat-mini-fill { height: 100%; border-radius: 20px; }
+
+/* معلومات التواصل */
+.contact-strip {
+  background: #EEF4FF;
+  border: 1px solid #BFDBFE;
+  border-radius: var(--radius);
+  padding: .65rem 1rem;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: .9rem;
+  font-size: .86rem;
+}
+.contact-strip a { color: var(--primary); text-decoration: none; font-weight: 600; }
+.contact-strip a:hover { text-decoration: underline; }
+
+/* شبكة المؤهلات */
+.quals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: .5rem;
+  margin-bottom: .9rem;
+}
+.qual-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: .5rem .75rem;
+}
+.qual-lbl { font-size: .72rem; color: var(--muted); display: block; }
+.qual-val { font-weight: 700; font-size: .86rem; color: var(--ink); }
+
+/* المهارات */
+.skills-strip { display: flex; gap: .3rem; flex-wrap: wrap; margin-bottom: .9rem; }
+.skill-tag {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: .18rem .55rem;
+  border-radius: 6px;
+  font-size: .76rem;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+.skill-tag.matched {
+  background: #ECFDF5;
+  border-color: #BBF7D0;
+  color: #15803D;
+}
+
+/* الإجابات */
+.answer-block { margin-bottom: .85rem; }
+.answer-q {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  font-size: .83rem;
+  color: var(--primary-d);
+  margin-bottom: .25rem;
+}
+.answer-a {
+  font-size: .87rem;
+  color: var(--ink-2);
+  line-height: 1.75;
+  white-space: pre-wrap;
+  background: var(--bg);
+  border-right: 3px solid var(--border);
+  padding: .5rem .8rem;
+  border-radius: 0 8px 8px 0;
+}
+
+/* أزرار الإجراءات */
+.app-actions {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  padding-top: .9rem;
+  border-top: 1px solid var(--border-l);
+  margin-top: .9rem;
+  align-items: center;
+}
+.app-actions .status-label {
+  font-size: .8rem;
+  color: var(--muted);
+  margin-right: auto;
+}
+
+@media (max-width: 640px) {
+  .summary-strip { grid-template-columns: repeat(2, 1fr); }
+  .quals-grid { grid-template-columns: 1fr 1fr; }
+  .app-card .card-body { padding: 1.1rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="applicants-wrap">
+
+  <a href="{{ url_for('opportunities.opportunity_detail', opp_id=opp.id) }}" class="btn btn-ghost btn-sm" style="margin-bottom:1rem;">
+    → العودة للفرصة
+  </a>
+
+  <div class="page-header">
+    <h1>المتقدمون على: {{ opp.title }}</h1>
+    <p>{{ opp.company }} — مرتبون تنازلياً حسب نسبة التوافق</p>
+  </div>
+
+  <!-- شريط الملخص -->
+  {% set accepted = apps | selectattr('status','equalto','accepted') | list | length %}
+  {% set rejected = apps | selectattr('status','equalto','rejected') | list | length %}
+  {% set pending  = apps | selectattr('status','equalto','pending')  | list | length %}
+
+  <div class="summary-strip">
+    <div class="summary-card">
+      <div class="summary-num" style="color:var(--primary);">{{ apps | length }}</div>
+      <div class="summary-lbl">إجمالي الطلبات</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-num" style="color:var(--warning);">{{ pending }}</div>
+      <div class="summary-lbl">قيد المراجعة</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-num" style="color:var(--success);">{{ accepted }}</div>
+      <div class="summary-lbl">مقبول</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-num" style="color:var(--danger);">{{ rejected }}</div>
+      <div class="summary-lbl">مرفوض</div>
+    </div>
+  </div>
+
+  {% if apps %}
+    {% set req_skills_list = (opp.required_skills or '').lower().split(',') | map('trim') | list %}
+
+    {% for app in apps %}
+    <div class="card card-static app-card">
+      <div class="card-body">
+
+        <!-- رأس البطاقة -->
+        <div class="app-header">
+          <div class="app-user-info">
+            <div class="app-avatar">{{ app.applicant.username[0] | upper }}</div>
+            <div>
+              <div class="app-name">{{ app.applicant.username }}</div>
+              <div class="app-date">تقدّم بتاريخ {{ app.date_applied.strftime('%d/%m/%Y — %H:%M') }}</div>
+              <div style="margin-top:.3rem;">
+                {% if app.status == 'accepted' %}
+                  <span class="badge badge-accepted">✓ مقبول</span>
+                {% elif app.status == 'rejected' %}
+                  <span class="badge badge-rejected">✕ مرفوض</span>
+                {% else %}
+                  <span class="badge badge-pending">⏳ قيد المراجعة</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- نسبة التوافق -->
+          <div class="compat-display">
+            <div class="compat-pct" style="color:{% if app.compatibility_score >= 70 %}var(--success){% elif app.compatibility_score >= 40 %}var(--warning){% else %}var(--danger){% endif %};">
+              {{ app.compatibility_score }}%
+            </div>
+            <div class="compat-lbl">نسبة التوافق</div>
+            <div class="compat-mini">
+              <div class="compat-mini-fill {% if app.compatibility_score >= 70 %}compat-high{% elif app.compatibility_score >= 40 %}compat-mid{% else %}compat-low{% endif %}"
+                   style="width:{{ app.compatibility_score }}%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- معلومات التواصل -->
+        <div class="contact-strip">
+          {% if app.contact_email %}
+            <span>📧 البريد: <a href="mailto:{{ app.contact_email }}">{{ app.contact_email }}</a></span>
+          {% endif %}
+          {% if app.contact_phone %}
+            <span>📱 الجوال: <a href="tel:{{ app.contact_phone }}" dir="ltr">{{ app.contact_phone }}</a></span>
+          {% endif %}
+          {% if app.applicant.profile and app.applicant.profile.cv_link %}
+            <span>📄 السيرة الذاتية: <a href="{{ app.applicant.profile.cv_link }}" target="_blank" rel="noopener">عرض السيرة الذاتية ↗</a></span>
+          {% endif %}
+        </div>
+
+        <!-- المؤهلات -->
+        <div class="quals-grid">
+          {% if app.applicant_education %}
+          <div class="qual-item">
+            <span class="qual-lbl">المؤهل التعليمي</span>
+            <span class="qual-val">🎓 {{ app.applicant_education }}</span>
+          </div>
+          {% endif %}
+          {% if app.applicant_experience %}
+          <div class="qual-item">
+            <span class="qual-lbl">سنوات الخبرة</span>
+            <span class="qual-val">📅 {{ app.applicant_experience }}</span>
+          </div>
+          {% endif %}
+          {% if app.current_position %}
+          <div class="qual-item">
+            <span class="qual-lbl">المسمى الحالي</span>
+            <span class="qual-val">💼 {{ app.current_position }}</span>
+          </div>
+          {% endif %}
+          {% if app.availability %}
+          <div class="qual-item">
+            <span class="qual-lbl">موعد البدء</span>
+            <span class="qual-val">🗓 {{ app.availability }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- المهارات مع تمييز المطابقة -->
+        {% if app.applicant_skills %}
+        <div style="margin-bottom:.85rem;">
+          <div style="font-size:.75rem;color:var(--muted);margin-bottom:.3rem;">🛠 المهارات المُقدَّمة:</div>
+          <div class="skills-strip">
+            {% for skill in app.applicant_skills.split(',') %}
+              {% set s = skill.strip() %}
+              {% if s.lower() in req_skills_list %}
+                <span class="skill-tag matched">✓ {{ s }}</span>
+              {% else %}
+                <span class="skill-tag">{{ s }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div style="font-size:.73rem;color:var(--muted);">
+            الشارات الخضراء = مهارات تطابق متطلبات الفرصة
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- الإجابات -->
+        {% if app.motivation %}
+        <div class="answer-block">
+          <div class="answer-q">💬 لماذا يريد الانضمام؟</div>
+          <div class="answer-a">{{ app.motivation }}</div>
+        </div>
+        {% endif %}
+        {% if app.relevant_experience %}
+        <div class="answer-block">
+          <div class="answer-q">📁 الخبرات ذات الصلة</div>
+          <div class="answer-a">{{ app.relevant_experience }}</div>
+        </div>
+        {% endif %}
+
+        <!-- أزرار الإجراءات -->
+        <div class="app-actions">
+          {% if app.status != 'accepted' %}
+          <form method="POST" action="{{ url_for('opportunities.update_application_status', app_id=app.id) }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="status" value="accepted">
+            <button type="submit" class="btn btn-green btn-sm">✓ قبول</button>
+          </form>
+          {% endif %}
+          {% if app.status != 'rejected' %}
+          <form method="POST" action="{{ url_for('opportunities.update_application_status', app_id=app.id) }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="status" value="rejected">
+            <button type="submit" class="btn btn-danger btn-sm">✕ رفض</button>
+          </form>
+          {% endif %}
+          {% if app.status != 'pending' %}
+          <form method="POST" action="{{ url_for('opportunities.update_application_status', app_id=app.id) }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="status" value="pending">
+            <button type="submit" class="btn btn-outline btn-sm">↩ إعادة للمراجعة</button>
+          </form>
+          {% endif %}
+          <span class="status-label">
+            رقم الطلب #{{ app.id }}
+          </span>
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="empty-state">
+      <div class="es-icon">📭</div>
+      <h3>لم يتقدم أحد بعد</h3>
+      <p>شارك رابط الفرصة لتصلك طلبات من مرشحين مؤهلين</p>
+      <div style="margin-top:1rem;background:var(--surface-2);border-radius:var(--radius);padding:.6rem 1rem;font-size:.82rem;color:var(--muted);word-break:break-all;">
+        {{ request.host_url }}opportunity/{{ opp.id }}
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

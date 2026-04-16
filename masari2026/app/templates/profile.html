@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}ملفي الشخصي — مساري{% endblock %}
+{% block extra_css %}
+<style>
+.profile-wrap { max-width: 740px; }
+.profile-hero {
+  background: linear-gradient(135deg, var(--primary-d), #1A4A8F);
+  border-radius: var(--radius-lg);
+  padding: 1.8rem 2rem;
+  color: var(--white);
+  margin-bottom: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  background: rgba(212,131,26,.25);
+  border: 3px solid rgba(212,131,26,.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: #FBBF24;
+  flex-shrink: 0;
+}
+.profile-info h2 {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 1.2rem;
+  margin-bottom: .2rem;
+}
+.profile-info p { opacity: .7; font-size: .87rem; }
+.profile-badges { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
+.profile-badge {
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 20px;
+  padding: .2rem .75rem;
+  font-size: .76rem;
+  color: rgba(255,255,255,.85);
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="profile-wrap">
+
+  <div class="page-header">
+    <h1>ملفي الشخصي</h1>
+    <p>ملفك الشخصي القوي يُظهرك للفرص المناسبة ويرفع نسبة توافقك</p>
+  </div>
+
+  <!-- Hero الملف الشخصي -->
+  <div class="profile-hero">
+    <div class="profile-avatar">{{ current_user.username[0] | upper }}</div>
+    <div class="profile-info">
+      <h2>{{ current_user.username }}</h2>
+      <p>{{ current_user.email }}</p>
+      <div class="profile-badges">
+        {% if current_user.education_level %}
+          <span class="profile-badge">🎓 {{ current_user.education_level }}</span>
+        {% endif %}
+        {% if current_user.role == 'admin' %}
+          <span class="profile-badge" style="background:rgba(212,131,26,.3);border-color:rgba(212,131,26,.5);">⚙️ مشرف</span>
+        {% endif %}
+        {% if current_user.date_joined %}
+          <span class="profile-badge">عضو منذ {{ current_user.date_joined.strftime('%Y') }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- نموذج تعديل الملف -->
+  <div class="card card-static">
+    <div class="card-body">
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="section-title">
+          <span class="st-dot"></span> المهارات والخبرات
+        </div>
+
+        <div class="form-group">
+          {{ form.skills.label(class="form-label") }}
+          {{ form.skills(class="form-control", placeholder="مثال: Python، إدارة المشاريع، Excel، التسويق الرقمي، SQL") }}
+          <div class="form-hint">افصل بين المهارات بفاصلة — تُستخدم لحساب نسبة توافقك مع الفرص</div>
+          {% for e in form.skills.errors %}<div class="error-msg">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.experience_years.label(class="form-label") }}
+          {{ form.experience_years(class="form-control", placeholder="0", type="number", min="0", max="50") }}
+          {% for e in form.experience_years.errors %}<div class="error-msg">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.experience_desc.label(class="form-label") }}
+          {{ form.experience_desc(class="form-control", rows=5,
+             placeholder="اشرح تجاربك السابقة ومجالات عملك، أبرز إنجازاتك، والمشاريع التي شاركت فيها...") }}
+          {% for e in form.experience_desc.errors %}<div class="error-msg">{{ e }}</div>{% endfor %}
+        </div>
+
+        <hr class="divider">
+
+        <div class="section-title">
+          <span class="st-dot"></span> رابط السيرة الذاتية
+        </div>
+
+        <div class="form-group">
+          {{ form.cv_link.label(class="form-label") }}
+          {{ form.cv_link(class="form-control", placeholder="https://drive.google.com/file/...") }}
+          <div class="form-hint">رابط ملف PDF على Google Drive أو أي خدمة تخزين سحابي</div>
+          {% for e in form.cv_link.errors %}<div class="error-msg">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.5rem;">
+          {{ form.submit(class="btn btn-primary btn-lg") }}
+          <a href="{{ url_for('opportunities.home') }}" class="btn btn-outline btn-lg">الرئيسية</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

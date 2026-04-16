@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}فرصي المنشورة — مساري{% endblock %}
+{% block content %}
+
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+  <div>
+    <h1>فرصي المنشورة</h1>
+    <p>الفرص التي نشرتها على منصة مساري</p>
+  </div>
+  <a href="{{ url_for('opportunities.new_opportunity') }}" class="btn btn-gold">+ نشر فرصة جديدة</a>
+</div>
+
+{% if opportunities %}
+  <div style="display:flex;flex-direction:column;gap:.9rem;">
+    {% for opp in opportunities %}
+    <div class="card card-static">
+      <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+
+          <div style="flex:1;min-width:220px;">
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem;">
+              {% if opp.type == 'وظيفة' %}<span class="badge badge-job">{{ opp.type }}</span>
+              {% elif opp.type == 'تدريب' %}<span class="badge badge-training">{{ opp.type }}</span>
+              {% elif opp.type == 'تمهير' %}<span class="badge badge-tamheer">{{ opp.type }}</span>
+              {% elif opp.type == 'دورة' %}<span class="badge badge-course">{{ opp.type }}</span>
+              {% elif opp.type == 'عمل حر' %}<span class="badge badge-freelance">{{ opp.type }}</span>
+              {% else %}<span class="badge badge-volunteer">{{ opp.type }}</span>{% endif %}
+              {% if opp.work_type %}<span class="badge badge-muted">{{ opp.work_type }}</span>{% endif %}
+              <span style="font-size:.75rem;color:var(--muted-l);">{{ opp.date_posted.strftime('%d/%m/%Y') }}</span>
+            </div>
+            <div style="font-family:'Cairo',sans-serif;font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:.2rem;">
+              {{ opp.title }}
+            </div>
+            <div style="color:var(--muted);font-size:.86rem;margin-bottom:.5rem;">🏢 {{ opp.company }}{% if opp.location %} · 📍 {{ opp.location }}{% endif %}</div>
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <span style="font-family:'Cairo',sans-serif;font-weight:700;font-size:.9rem;color:var(--primary);">
+                👥 {{ opp.applications | length }} طلب تقديم
+              </span>
+              {% if opp.deadline %}
+                <span style="font-size:.76rem;color:var(--muted);border-right:1px solid var(--border);padding-right:.5rem;">
+                  ⏰ آخر موعد: {{ opp.deadline.strftime('%d/%m/%Y') }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;flex-shrink:0;">
+            <a href="{{ url_for('opportunities.view_applicants', opp_id=opp.id) }}" class="btn btn-primary btn-sm">عرض المتقدمين</a>
+            <a href="{{ url_for('opportunities.opportunity_detail', opp_id=opp.id) }}" class="btn btn-outline btn-sm">عرض</a>
+            <a href="{{ url_for('opportunities.edit_opportunity', opp_id=opp.id) }}" class="btn btn-outline btn-sm">تعديل</a>
+            <form method="POST" action="{{ url_for('opportunities.delete_opportunity', opp_id=opp.id) }}"
+                  style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذه الفرصة؟')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-danger btn-sm">حذف</button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+{% else %}
+  <div class="empty-state">
+    <div class="es-icon">📝</div>
+    <h3>لم تنشر أي فرصة بعد</h3>
+    <p>انشر أول فرصة وساهم في بناء مجتمع مساري المهني</p>
+    <a href="{{ url_for('opportunities.new_opportunity') }}" class="btn btn-primary" style="margin-top:1.2rem;">نشر فرصة الآن</a>
+  </div>
+{% endif %}
+
+{% endblock %}

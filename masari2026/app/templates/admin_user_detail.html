@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %}{{ user.username }} — إدارة المستخدمين — مساري 2026{% endblock %}
+{% block extra_css %}
+<style>
+.detail-wrap { max-width: 900px; }
+.user-hero {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+.user-big-avatar {
+  width: 72px; height: 72px;
+  background: var(--primary);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(26,74,143,.25);
+}
+.user-hero-info { flex: 1; }
+.user-hero-name { font-family: 'Cairo', sans-serif; font-weight: 900; font-size: 1.3rem; }
+.user-hero-meta { color: var(--muted); font-size: .88rem; margin-top: .3rem; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+.info-item {
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: .85rem 1rem;
+}
+.info-lbl { font-size: .75rem; color: var(--muted); display: block; margin-bottom: .2rem; }
+.info-val { font-weight: 700; font-size: .95rem; }
+.edit-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group label { display: block; font-size: .82rem; color: var(--muted); margin-bottom: .3rem; font-weight: 600; }
+.form-group input, .form-group select {
+  width: 100%;
+  padding: .6rem .9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: 'Tajawal', sans-serif;
+  font-size: .92rem;
+  background: var(--white);
+}
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26,74,143,.1);
+}
+.danger-zone {
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem 1.6rem;
+  background: var(--danger-bg);
+  margin-top: 1.5rem;
+}
+.danger-zone h3 { color: var(--danger); font-family: 'Cairo', sans-serif; margin-bottom: .5rem; }
+.danger-zone p { font-size: .88rem; color: var(--ink-2); margin-bottom: 1rem; }
+.act-list { display: flex; flex-direction: column; gap: .6rem; }
+.act-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .7rem 1rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: .88rem;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.act-title { font-weight: 600; }
+.act-meta { color: var(--muted); font-size: .78rem; }
+@media (max-width: 640px) {
+  .info-grid { grid-template-columns: 1fr; }
+  .edit-form { grid-template-columns: 1fr; }
+  .user-hero { flex-direction: column; text-align: center; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-wrap">
+
+  <a href="{{ url_for('opportunities.admin_users') }}" class="btn btn-ghost btn-sm" style="margin-bottom:1rem;">← قائمة المستخدمين</a>
+
+  <!-- بطاقة المستخدم -->
+  <div class="user-hero">
+    <div class="user-big-avatar">{{ user.username[0] | upper }}</div>
+    <div class="user-hero-info">
+      <div class="user-hero-name">{{ user.username }}</div>
+      <div class="user-hero-meta">
+        {{ user.email }}
+        {% if user.phone %} · {{ user.phone }}{% endif %}
+        · انضم {{ user.date_joined.strftime('%d/%m/%Y') if user.date_joined else '—' }}
+      </div>
+      <div style="margin-top:.5rem;">
+        {% if user.role == 'admin' %}
+          <span style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;padding:.2rem .7rem;border-radius:8px;font-size:.8rem;font-weight:700;">⭐ مشرف</span>
+        {% else %}
+          <span style="background:var(--surface-2);color:var(--muted);border:1px solid var(--border);padding:.2rem .7rem;border-radius:8px;font-size:.8rem;font-weight:600;">مستخدم عادي</span>
+        {% endif %}
+        {% if user.education_level %}
+          <span style="background:#EEF4FF;color:var(--primary);border:1px solid #BFDBFE;padding:.2rem .7rem;border-radius:8px;font-size:.8rem;font-weight:600;margin-right:.4rem;">🎓 {{ user.education_level }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;text-align:center;">
+      <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.5rem;color:var(--primary);">{{ user_opps | length }}</div>
+      <div style="font-size:.75rem;color:var(--muted);">فرصة منشورة</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;text-align:center;">
+      <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.5rem;color:var(--success);">{{ user_apps | length }}</div>
+      <div style="font-size:.75rem;color:var(--muted);">طلب تقديم</div>
+    </div>
+  </div>
+
+  <!-- معلومات الملف الشخصي -->
+  {% if user.profile %}
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-body">
+      <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:1rem;">📋 الملف الشخصي</div>
+      <div class="info-grid">
+        {% if user.profile.experience_years is not none %}
+        <div class="info-item">
+          <span class="info-lbl">سنوات الخبرة</span>
+          <span class="info-val">{{ user.profile.experience_years }} سنة</span>
+        </div>
+        {% endif %}
+        {% if user.profile.cv_link %}
+        <div class="info-item">
+          <span class="info-lbl">السيرة الذاتية</span>
+          <span class="info-val"><a href="{{ user.profile.cv_link }}" target="_blank" rel="noopener" style="color:var(--primary);">عرض السيرة الذاتية ↗</a></span>
+        </div>
+        {% endif %}
+        {% if user.profile.skills %}
+        <div class="info-item" style="grid-column: 1 / -1;">
+          <span class="info-lbl">المهارات</span>
+          <span class="info-val" style="font-weight:500;">{{ user.profile.skills }}</span>
+        </div>
+        {% endif %}
+        {% if user.profile.experience_desc %}
+        <div class="info-item" style="grid-column: 1 / -1;">
+          <span class="info-lbl">وصف الخبرة</span>
+          <span class="info-val" style="font-weight:500;">{{ user.profile.experience_desc }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- تعديل البيانات -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-body">
+      <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:1.2rem;">✏️ تعديل بيانات المستخدم</div>
+      <form method="POST" action="{{ url_for('opportunities.admin_update_user', user_id=user.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="edit-form">
+          <div class="form-group">
+            <label>اسم المستخدم</label>
+            <input type="text" name="username" value="{{ user.username }}" required>
+          </div>
+          <div class="form-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" name="email" value="{{ user.email }}" required>
+          </div>
+          <div class="form-group">
+            <label>رقم الجوال</label>
+            <input type="text" name="phone" value="{{ user.phone or '' }}" dir="ltr">
+          </div>
+          <div class="form-group">
+            <label>الدور</label>
+            <select name="role">
+              <option value="user" {% if user.role == 'user' %}selected{% endif %}>مستخدم عادي</option>
+              <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>مشرف (Admin)</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:1.2rem;">
+          <button type="submit" class="btn btn-primary">💾 حفظ التعديلات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- آخر الفرص المنشورة -->
+  {% if user_opps %}
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-body">
+      <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:1rem;">💼 الفرص المنشورة ({{ user_opps | length }})</div>
+      <div class="act-list">
+        {% for opp in user_opps[:5] %}
+        <div class="act-item">
+          <div>
+            <div class="act-title">{{ opp.title }}</div>
+            <div class="act-meta">{{ opp.company }} · {{ opp.type }} · {{ opp.applications | length }} متقدم</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <span style="font-size:.78rem;color:var(--muted);">{{ opp.date_posted.strftime('%d/%m/%Y') if opp.date_posted else '—' }}</span>
+            <a href="{{ url_for('opportunities.opportunity_detail', opp_id=opp.id) }}" class="btn btn-outline btn-sm">عرض</a>
+          </div>
+        </div>
+        {% endfor %}
+        {% if user_opps | length > 5 %}
+        <div style="text-align:center;color:var(--muted);font-size:.85rem;padding:.5rem;">و{{ user_opps | length - 5 }} فرصة أخرى...</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- آخر الطلبات -->
+  {% if user_apps %}
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-body">
+      <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:1rem;">📨 طلبات التقديم ({{ user_apps | length }})</div>
+      <div class="act-list">
+        {% for app in user_apps[:5] %}
+        <div class="act-item">
+          <div>
+            <div class="act-title">{{ app.opportunity.title }}</div>
+            <div class="act-meta">{{ app.opportunity.company }} · توافق {{ app.compatibility_score }}%</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            {% if app.status == 'accepted' %}
+              <span style="background:var(--success-bg);color:var(--success);padding:.15rem .55rem;border-radius:6px;font-size:.75rem;font-weight:700;">مقبول</span>
+            {% elif app.status == 'rejected' %}
+              <span style="background:var(--danger-bg);color:var(--danger);padding:.15rem .55rem;border-radius:6px;font-size:.75rem;font-weight:700;">مرفوض</span>
+            {% else %}
+              <span style="background:var(--warning-bg);color:var(--warning);padding:.15rem .55rem;border-radius:6px;font-size:.75rem;font-weight:700;">قيد المراجعة</span>
+            {% endif %}
+            <span style="font-size:.78rem;color:var(--muted);">{{ app.date_applied.strftime('%d/%m/%Y') if app.date_applied else '—' }}</span>
+          </div>
+        </div>
+        {% endfor %}
+        {% if user_apps | length > 5 %}
+        <div style="text-align:center;color:var(--muted);font-size:.85rem;padding:.5rem;">و{{ user_apps | length - 5 }} طلب آخر...</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- منطقة الخطر -->
+  {% if user.id != current_user.id %}
+  <div class="danger-zone">
+    <h3>⚠️ منطقة الخطر</h3>
+    <p>حذف المستخدم سيؤدي إلى حذف جميع بياناته بشكل نهائي — الفرص، الطلبات، والملف الشخصي. هذا الإجراء لا يمكن التراجع عنه.</p>
+    <form method="POST" action="{{ url_for('opportunities.admin_delete_user', user_id=user.id) }}"
+          onsubmit="return confirm('هل أنت متأكد من حذف المستخدم {{ user.username }}؟ لا يمكن التراجع عن هذا الإجراء.')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-danger">🗑 حذف المستخدم نهائياً</button>
+    </form>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

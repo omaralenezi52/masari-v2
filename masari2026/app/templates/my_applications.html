@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}طلباتي — مساري{% endblock %}
+{% block content %}
+
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+  <div>
+    <h1>طلباتي</h1>
+    <p>تتبع حالة جميع طلبات التقديم التي أرسلتها</p>
+  </div>
+  <a href="{{ url_for('opportunities.home') }}" class="btn btn-primary btn-sm">تصفح المزيد من الفرص</a>
+</div>
+
+{% if apps %}
+  <!-- إحصائيات سريعة -->
+  {% set accepted = apps | selectattr('status','equalto','accepted') | list | length %}
+  {% set rejected = apps | selectattr('status','equalto','rejected') | list | length %}
+  {% set pending  = apps | selectattr('status','equalto','pending')  | list | length %}
+  <div class="grid-3" style="margin-bottom:1.5rem;">
+    <div class="card card-static" style="text-align:center;">
+      <div class="card-body" style="padding:1rem;">
+        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.6rem;color:var(--warning);">{{ pending }}</div>
+        <div style="font-size:.8rem;color:var(--muted);">قيد المراجعة</div>
+      </div>
+    </div>
+    <div class="card card-static" style="text-align:center;">
+      <div class="card-body" style="padding:1rem;">
+        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.6rem;color:var(--success);">{{ accepted }}</div>
+        <div style="font-size:.8rem;color:var(--muted);">مقبول</div>
+      </div>
+    </div>
+    <div class="card card-static" style="text-align:center;">
+      <div class="card-body" style="padding:1rem;">
+        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.6rem;color:var(--danger);">{{ rejected }}</div>
+        <div style="font-size:.8rem;color:var(--muted);">مرفوض</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:.8rem;">
+    {% for app in apps %}
+    <div class="card card-static">
+      <div class="card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+
+        <div style="flex:1;min-width:220px;">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;">
+            {% if app.opportunity.type == 'وظيفة' %}<span class="badge badge-job">{{ app.opportunity.type }}</span>
+            {% elif app.opportunity.type == 'تدريب' %}<span class="badge badge-training">{{ app.opportunity.type }}</span>
+            {% elif app.opportunity.type == 'تمهير' %}<span class="badge badge-tamheer">{{ app.opportunity.type }}</span>
+            {% elif app.opportunity.type == 'دورة' %}<span class="badge badge-course">{{ app.opportunity.type }}</span>
+            {% elif app.opportunity.type == 'عمل حر' %}<span class="badge badge-freelance">{{ app.opportunity.type }}</span>
+            {% else %}<span class="badge badge-volunteer">{{ app.opportunity.type }}</span>{% endif %}
+            <span style="font-size:.75rem;color:var(--muted-l);">{{ app.date_applied.strftime('%d/%m/%Y') }}</span>
+          </div>
+          <div style="font-family:'Cairo',sans-serif;font-weight:700;font-size:1rem;color:var(--ink);margin-bottom:.2rem;">
+            <a href="{{ url_for('opportunities.opportunity_detail', opp_id=app.opportunity.id) }}"
+               style="text-decoration:none;color:inherit;">{{ app.opportunity.title }}</a>
+          </div>
+          <div style="color:var(--muted);font-size:.85rem;">🏢 {{ app.opportunity.company }}</div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <!-- نسبة التوافق -->
+          <div style="text-align:center;">
+            <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.2rem;color:{% if app.compatibility_score >= 70 %}var(--success){% elif app.compatibility_score >= 40 %}var(--warning){% else %}var(--danger){% endif %};">
+              {{ app.compatibility_score }}%
+            </div>
+            <div style="font-size:.72rem;color:var(--muted);">التوافق</div>
+          </div>
+
+          <!-- الحالة -->
+          {% if app.status == 'accepted' %}
+            <span class="badge badge-accepted" style="font-size:.84rem;padding:.3rem .9rem;">✓ مقبول</span>
+          {% elif app.status == 'rejected' %}
+            <span class="badge badge-rejected" style="font-size:.84rem;padding:.3rem .9rem;">✕ مرفوض</span>
+          {% else %}
+            <span class="badge badge-pending" style="font-size:.84rem;padding:.3rem .9rem;">⏳ قيد المراجعة</span>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+{% else %}
+  <div class="empty-state">
+    <div class="es-icon">📭</div>
+    <h3>لم تتقدم لأي فرصة بعد</h3>
+    <p>استكشف الفرص المتاحة وتقدّم الآن لبناء مسارك المهني</p>
+    <a href="{{ url_for('opportunities.home') }}" class="btn btn-primary" style="margin-top:1.2rem;">تصفح الفرص</a>
+  </div>
+{% endif %}
+
+{% endblock %}

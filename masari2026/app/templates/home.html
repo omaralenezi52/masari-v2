@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+{% block title %}مساري — اكتشف فرصتك المهنية{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ═══ Hero Section ═══ */
+.hero {
+  background: linear-gradient(135deg, var(--primary-d) 0%, #1A4A8F 55%, #1E5BA8 100%);
+  border-radius: var(--radius-lg);
+  padding: 4rem 3.5rem;
+  color: var(--white);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  left: -60px;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(212,131,26,.18) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  right: -40px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(37,99,235,.25) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: rgba(212,131,26,.18);
+  border: 1px solid rgba(212,131,26,.35);
+  border-radius: 20px;
+  padding: .3rem .9rem;
+  font-size: .8rem;
+  color: #FBBF24;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+}
+.hero h1 {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 2.4rem;
+  line-height: 1.28;
+  margin-bottom: .8rem;
+}
+.hero h1 .gold { color: #FBBF24; }
+.hero p {
+  font-size: 1rem;
+  opacity: .78;
+  max-width: 480px;
+  margin-bottom: 2rem;
+  line-height: 1.8;
+}
+.hero-cta { display: flex; gap: .8rem; flex-wrap: wrap; }
+.btn-hero-primary {
+  background: var(--gold);
+  color: var(--white);
+  padding: .8rem 2rem;
+  border-radius: 12px;
+  font-size: .95rem;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(212,131,26,.38);
+}
+.btn-hero-primary:hover {
+  background: #BC7116;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212,131,26,.45);
+}
+.btn-hero-outline {
+  background: rgba(255,255,255,.08);
+  color: var(--white);
+  border: 1.5px solid rgba(255,255,255,.25);
+  padding: .8rem 1.8rem;
+  border-radius: 12px;
+  font-size: .95rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+}
+.btn-hero-outline:hover {
+  background: rgba(255,255,255,.14);
+  border-color: rgba(255,255,255,.5);
+}
+
+/* ═══ Stats Bar ═══ */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.2rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin: 0 auto .6rem;
+}
+.stat-icon-blue   { background: #EEF4FF; }
+.stat-icon-gold   { background: var(--gold-bg); }
+.stat-icon-green  { background: var(--success-bg); }
+.stat-icon-purple { background: #F5F3FF; }
+.stat-num {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 900;
+  font-size: 1.65rem;
+  color: var(--primary-d);
+  line-height: 1;
+}
+.stat-lbl { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+
+/* ═══ Filters ═══ */
+.filters-section {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 1.8rem;
+  box-shadow: var(--shadow-sm);
+}
+.filters-row {
+  display: flex;
+  gap: .8rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.search-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+.search-wrap input {
+  width: 100%;
+  padding: .62rem 1rem .62rem 2.6rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: .9rem;
+  color: var(--ink);
+  outline: none;
+  direction: rtl;
+  transition: var(--transition);
+  background: var(--bg);
+}
+.search-wrap input:focus {
+  border-color: var(--primary-l);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.09);
+}
+.search-icon {
+  position: absolute;
+  left: .8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: .9rem;
+  pointer-events: none;
+}
+.filter-tabs {
+  display: flex;
+  gap: .3rem;
+  flex-wrap: wrap;
+}
+.filter-tab {
+  padding: .42rem .95rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 600;
+  font-size: .81rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--muted);
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.filter-tab:hover { border-color: var(--primary); color: var(--primary); background: #EEF4FF; }
+.filter-tab.active { background: var(--primary); color: var(--white); border-color: var(--primary); box-shadow: 0 2px 8px rgba(26,74,143,.2); }
+
+/* ═══ بطاقات الفرص ═══ */
+.opps-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+.opps-header h2 {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink-2);
+}
+.opps-count {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: .2rem .8rem;
+  font-size: .8rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.opp-card { display: flex; flex-direction: column; }
+.opp-card .card-body { flex: 1; display: flex; flex-direction: column; padding: 1.3rem; }
+.opp-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .6rem; }
+.opp-type-badges { display: flex; gap: .3rem; flex-wrap: wrap; }
+.opp-date { font-size: .75rem; color: var(--muted-l); white-space: nowrap; }
+.opp-title {
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--ink);
+  margin-bottom: .2rem;
+  line-height: 1.45;
+}
+.opp-company {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  color: var(--muted);
+  font-size: .84rem;
+  margin-bottom: .7rem;
+}
+.opp-desc {
+  color: var(--muted);
+  font-size: .84rem;
+  line-height: 1.65;
+  flex: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+.opp-skills { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .7rem; }
+.opp-skill {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  padding: .17rem .55rem;
+  border-radius: 6px;
+  font-size: .74rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+}
+.opp-footer {
+  margin-top: .9rem;
+  padding-top: .9rem;
+  border-top: 1px solid var(--border-l);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+}
+.opp-meta-tags { display: flex; gap: .3rem; flex-wrap: wrap; align-items: center; }
+.opp-meta-tag {
+  font-size: .74rem;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: .15rem .5rem;
+  border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+  .hero { padding: 2.5rem 1.8rem; }
+  .hero h1 { font-size: 1.75rem; }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .hero { padding: 2rem 1.2rem; }
+  .hero h1 { font-size: 1.5rem; }
+  .stats-bar { grid-template-columns: 1fr 1fr; }
+  .filters-row { flex-direction: column; align-items: stretch; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ═══ Hero ═══ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      ◆ منصة مساري للفرص المهنية
+    </div>
+    <h1>
+      ابنِ <span class="gold">مسارك المهني</span><br>
+      مع المنصة الأولى للكفاءات
+    </h1>
+    <p>وظائف، تدريب، دورات، تطوع، وعمل حر في مكان واحد. نظام ذكي لمطابقة المؤهلات. انضم إلى مجتمع مساري اليوم.</p>
+    <div class="hero-cta">
+      {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('accounts.register') }}" class="btn btn-hero-primary">انضم مجاناً الآن</a>
+        <a href="{{ url_for('accounts.login') }}" class="btn btn-hero-outline">تسجيل الدخول</a>
+      {% else %}
+        <a href="{{ url_for('opportunities.new_opportunity') }}" class="btn btn-hero-primary">نشر فرصة جديدة</a>
+        <a href="{{ url_for('opportunities.my_applications') }}" class="btn btn-hero-outline">متابعة طلباتي</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ═══ إحصائيات ═══ -->
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-blue">🎯</div>
+    <div class="stat-num">{{ total_opps }}</div>
+    <div class="stat-lbl">فرصة متاحة</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-gold">👥</div>
+    <div class="stat-num">{{ total_users }}</div>
+    <div class="stat-lbl">عضو في المجتمع</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-green">📋</div>
+    <div class="stat-num">{{ total_apps }}</div>
+    <div class="stat-lbl">طلب تقديم</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-purple">✓</div>
+    <div class="stat-num" style="font-size:1rem;color:var(--success);">مجاني</div>
+    <div class="stat-lbl">التسجيل والتقديم</div>
+  </div>
+</div>
+
+<!-- ═══ البحث والفلترة ═══ -->
+<form method="GET" action="{{ url_for('opportunities.home') }}">
+  <div class="filters-section">
+    <div class="filters-row">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" name="q" value="{{ search }}" placeholder="ابحث بالمسمى الوظيفي أو الجهة...">
+      </div>
+      <div class="filter-tabs">
+        <a href="{{ url_for('opportunities.home', q=search) }}"                         class="filter-tab {% if not opp_type %}active{% endif %}">الكل</a>
+        <a href="{{ url_for('opportunities.home', type='وظيفة',  q=search) }}"         class="filter-tab {% if opp_type == 'وظيفة' %}active{% endif %}">وظائف</a>
+        <a href="{{ url_for('opportunities.home', type='تدريب',  q=search) }}"         class="filter-tab {% if opp_type == 'تدريب' %}active{% endif %}">تدريب</a>
+        <a href="{{ url_for('opportunities.home', type='تمهير',  q=search) }}"         class="filter-tab {% if opp_type == 'تمهير' %}active{% endif %}">تمهير</a>
+        <a href="{{ url_for('opportunities.home', type='دورة',   q=search) }}"         class="filter-tab {% if opp_type == 'دورة' %}active{% endif %}">دورات</a>
+        <a href="{{ url_for('opportunities.home', type='تطوع',   q=search) }}"         class="filter-tab {% if opp_type == 'تطوع' %}active{% endif %}">تطوع</a>
+        <a href="{{ url_for('opportunities.home', type='عمل حر', q=search) }}"         class="filter-tab {% if opp_type == 'عمل حر' %}active{% endif %}">عمل حر</a>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">بحث</button>
+    </div>
+  </div>
+</form>
+
+<!-- ═══ قائمة الفرص ═══ -->
+{% if opportunities.items %}
+  <div class="opps-header">
+    <h2>الفرص المتاحة</h2>
+    <span class="opps-count">{{ opportunities.total }} فرصة</span>
+  </div>
+
+  <div class="grid-3">
+    {% for opp in opportunities.items %}
+    <div class="card opp-card">
+      <div class="card-body">
+
+        <div class="opp-card-top">
+          <div class="opp-type-badges">
+            {% if opp.type == 'وظيفة' %}
+              <span class="badge badge-job">{{ opp.type }}</span>
+            {% elif opp.type == 'تدريب' %}
+              <span class="badge badge-training">{{ opp.type }}</span>
+            {% elif opp.type == 'دورة' %}
+              <span class="badge badge-course">{{ opp.type }}</span>
+            {% elif opp.type == 'تمهير' %}
+              <span class="badge badge-tamheer">{{ opp.type }}</span>
+            {% elif opp.type == 'عمل حر' %}
+              <span class="badge badge-freelance">{{ opp.type }}</span>
+            {% else %}
+              <span class="badge badge-volunteer">{{ opp.type }}</span>
+            {% endif %}
+            {% if opp.work_type %}
+              <span class="badge badge-muted">{{ opp.work_type }}</span>
+            {% endif %}
+          </div>
+          <span class="opp-date">{{ opp.date_posted.strftime('%d/%m/%Y') }}</span>
+        </div>
+
+        <div class="opp-title">{{ opp.title }}</div>
+        <div class="opp-company">
+          🏢 {{ opp.company }}{% if opp.location %} &nbsp;·&nbsp; 📍 {{ opp.location }}{% endif %}
+        </div>
+        <div class="opp-desc">{{ opp.description }}</div>
+
+        {% if opp.required_skills %}
+        <div class="opp-skills">
+          {% for skill in opp.required_skills.split(',')[:3] %}
+            <span class="opp-skill">{{ skill.strip() }}</span>
+          {% endfor %}
+          {% if opp.required_skills.split(',')|length > 3 %}
+            <span class="opp-skill" style="color:var(--muted);">+{{ opp.required_skills.split(',')|length - 3 }}</span>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="opp-footer">
+          <div class="opp-meta-tags">
+            {% if opp.min_education %}
+              <span class="opp-meta-tag">{{ opp.min_education }}+</span>
+            {% endif %}
+            {% if opp.salary_range %}
+              <span class="opp-meta-tag">💰 {{ opp.salary_range }}</span>
+            {% endif %}
+          </div>
+          <a href="{{ url_for('opportunities.opportunity_detail', opp_id=opp.id) }}" class="btn btn-outline btn-sm">عرض التفاصيل</a>
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if opportunities.pages > 1 %}
+  <div class="pagination">
+    {% if opportunities.has_prev %}
+      <a href="{{ url_for('opportunities.home', page=opportunities.prev_num, type=opp_type, q=search) }}" class="page-link">&#8249;</a>
+    {% endif %}
+    {% for p in opportunities.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        <a href="{{ url_for('opportunities.home', page=p, type=opp_type, q=search) }}" class="page-link {% if p == opportunities.page %}active{% endif %}">{{ p }}</a>
+      {% else %}
+        <span class="page-link" style="cursor:default;opacity:.5;">…</span>
+      {% endif %}
+    {% endfor %}
+    {% if opportunities.has_next %}
+      <a href="{{ url_for('opportunities.home', page=opportunities.next_num, type=opp_type, q=search) }}" class="page-link">&#8250;</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+{% else %}
+  <div class="empty-state">
+    <div class="es-icon">🔍</div>
+    <h3>لا توجد فرص تطابق بحثك</h3>
+    <p>جرّب تغيير معايير البحث أو تحقق لاحقاً</p>
+    {% if search or opp_type %}
+      <a href="{{ url_for('opportunities.home') }}" class="btn btn-outline" style="margin-top:1rem;">إعادة تعيين الفلترة</a>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% endblock %}

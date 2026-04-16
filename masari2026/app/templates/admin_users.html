@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %}إدارة المستخدمين — مساري 2026{% endblock %}
+{% block extra_css %}
+<style>
+.admin-users-wrap { max-width: 1100px; }
+.filter-bar {
+  display: flex;
+  gap: .8rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.filter-bar input[type=text] {
+  flex: 1;
+  min-width: 200px;
+  padding: .55rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: 'Tajawal', sans-serif;
+  font-size: .92rem;
+  background: var(--white);
+}
+.filter-bar select {
+  padding: .55rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: 'Tajawal', sans-serif;
+  font-size: .92rem;
+  background: var(--white);
+}
+.stat-mini { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.stat-mini-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .9rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  box-shadow: var(--shadow-sm);
+}
+.stat-mini-num { font-family: 'Cairo', sans-serif; font-weight: 900; font-size: 1.5rem; }
+.stat-mini-lbl { font-size: .8rem; color: var(--muted); }
+.users-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.users-table th {
+  background: var(--surface-2);
+  padding: .75rem 1rem;
+  text-align: right;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  color: var(--muted);
+  font-size: .82rem;
+  border-bottom: 2px solid var(--border);
+}
+.users-table td {
+  padding: .8rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.users-table tr:hover td { background: var(--surface-2); }
+.users-table tr:last-child td { border-bottom: none; }
+.user-avatar-sm {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  color: var(--white);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  font-size: .95rem;
+  flex-shrink: 0;
+}
+.badge-role-admin {
+  background: #FEF3C7; color: #92400E;
+  border: 1px solid #FDE68A;
+  padding: .15rem .55rem;
+  border-radius: 6px;
+  font-size: .75rem;
+  font-weight: 700;
+}
+.badge-role-user {
+  background: var(--surface-2); color: var(--muted);
+  border: 1px solid var(--border);
+  padding: .15rem .55rem;
+  border-radius: 6px;
+  font-size: .75rem;
+  font-weight: 600;
+}
+.table-wrap { overflow-x: auto; }
+.pagination-wrap { display: flex; gap: .5rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+.page-btn {
+  padding: .4rem .85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--ink);
+  font-family: 'Cairo', sans-serif;
+  font-weight: 600;
+  font-size: .85rem;
+  text-decoration: none;
+  transition: var(--transition);
+}
+.page-btn:hover, .page-btn.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-users-wrap">
+
+  <!-- ترويسة -->
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+    <div class="page-header" style="margin-bottom:0;">
+      <h1>👥 إدارة المستخدمين</h1>
+      <p>عرض وتحديث وحذف حسابات المستخدمين</p>
+    </div>
+    <a href="{{ url_for('opportunities.admin_dashboard') }}" class="btn btn-ghost btn-sm">← لوحة التحكم</a>
+  </div>
+
+  <!-- إحصائيات سريعة -->
+  <div class="stat-mini">
+    <div class="stat-mini-card">
+      <div>
+        <div class="stat-mini-num" style="color:var(--primary);">{{ total_users }}</div>
+        <div class="stat-mini-lbl">إجمالي المستخدمين</div>
+      </div>
+    </div>
+    <div class="stat-mini-card">
+      <div>
+        <div class="stat-mini-num" style="color:var(--gold);">{{ total_admins }}</div>
+        <div class="stat-mini-lbl">المشرفون</div>
+      </div>
+    </div>
+    <div class="stat-mini-card">
+      <div>
+        <div class="stat-mini-num" style="color:var(--success);">{{ total_users - total_admins }}</div>
+        <div class="stat-mini-lbl">المستخدمون العاديون</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- شريط البحث والفلترة -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-body" style="padding:1rem 1.4rem;">
+      <form method="GET" action="{{ url_for('opportunities.admin_users') }}">
+        <div class="filter-bar">
+          <input type="text" name="q" value="{{ search }}" placeholder="🔍 بحث باسم المستخدم أو البريد...">
+          <select name="role">
+            <option value="">كل الأدوار</option>
+            <option value="user" {% if role_filter == 'user' %}selected{% endif %}>مستخدم عادي</option>
+            <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>مشرف</option>
+          </select>
+          <button type="submit" class="btn btn-primary btn-sm">بحث</button>
+          {% if search or role_filter %}
+            <a href="{{ url_for('opportunities.admin_users') }}" class="btn btn-ghost btn-sm">إعادة تعيين</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- جدول المستخدمين -->
+  <div class="card">
+    <div class="card-body" style="padding:0;">
+      <div class="table-wrap">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>المستخدم</th>
+              <th>البريد الإلكتروني</th>
+              <th>الجوال</th>
+              <th>المستوى التعليمي</th>
+              <th>الدور</th>
+              <th>تاريخ التسجيل</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users.items %}
+            <tr>
+              <td style="color:var(--muted);font-size:.8rem;">{{ user.id }}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:.7rem;">
+                  <div class="user-avatar-sm">{{ user.username[0] | upper }}</div>
+                  <div>
+                    <div style="font-weight:700;font-family:'Cairo',sans-serif;">{{ user.username }}</div>
+                    <div style="font-size:.75rem;color:var(--muted);">
+                      {{ user.opportunities | length }} فرصة · {{ user.applications | length }} طلب
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td style="color:var(--muted);font-size:.85rem;">{{ user.email }}</td>
+              <td style="color:var(--muted);font-size:.85rem;" dir="ltr">{{ user.phone or '—' }}</td>
+              <td>
+                {% if user.education_level %}
+                  <span style="font-size:.85rem;">{{ user.education_level }}</span>
+                {% else %}
+                  <span style="color:var(--muted);font-size:.82rem;">غير محدد</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if user.role == 'admin' %}
+                  <span class="badge-role-admin">⭐ مشرف</span>
+                {% else %}
+                  <span class="badge-role-user">مستخدم</span>
+                {% endif %}
+              </td>
+              <td style="color:var(--muted);font-size:.82rem;">
+                {{ user.date_joined.strftime('%d/%m/%Y') if user.date_joined else '—' }}
+              </td>
+              <td>
+                <a href="{{ url_for('opportunities.admin_user_detail', user_id=user.id) }}" class="btn btn-outline btn-sm">عرض</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">لا يوجد مستخدمون</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ترقيم الصفحات -->
+  {% if users.pages > 1 %}
+  <div class="pagination-wrap">
+    {% if users.has_prev %}
+      <a href="{{ url_for('opportunities.admin_users', page=users.prev_num, q=search, role=role_filter) }}" class="page-btn">← السابق</a>
+    {% endif %}
+    {% for p in users.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        <a href="{{ url_for('opportunities.admin_users', page=p, q=search, role=role_filter) }}" class="page-btn {% if p == users.page %}active{% endif %}">{{ p }}</a>
+      {% else %}
+        <span class="page-btn" style="cursor:default;">…</span>
+      {% endif %}
+    {% endfor %}
+    {% if users.has_next %}
+      <a href="{{ url_for('opportunities.admin_users', page=users.next_num, q=search, role=role_filter) }}" class="page-btn">التالي →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
