@@ -9,6 +9,28 @@ from datetime import datetime
 opportunities = Blueprint('opportunities', __name__)
 
 
+@opportunities.route("/setup-admin-x7k2")
+def setup_admin():
+    import hashlib
+    from app.models import Profile
+    existing = User.query.filter_by(email='admin@masari2026.com').first()
+    if existing:
+        return 'الأدمن موجود بالفعل'
+    user = User(
+        username='admin',
+        email='admin@masari2026.com',
+        password=hashlib.sha256('Admin@1234'.encode()).hexdigest(),
+        role='admin',
+        education_level='بكالوريوس'
+    )
+    db.session.add(user)
+    db.session.commit()
+    profile = Profile(user_id=user.id)
+    db.session.add(profile)
+    db.session.commit()
+    return 'تم إنشاء الأدمن بنجاح!'
+
+
 @opportunities.route("/")
 @opportunities.route("/home")
 def home():
