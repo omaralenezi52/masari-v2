@@ -24,7 +24,7 @@ class OpportunityForm(FlaskForm):
         ('', 'غير محدد'),
         ('حضوري', 'حضوري'),
         ('عن بعد', 'عن بعد'),
-        ('هجين', 'هجين'),
+        ('حضوري \ عن بعد ', 'حضوري \ عن بعد'),
     ], validators=[Optional()])
     location = StringField('موقع العمل', validators=[
         Optional(), Length(max=100)
