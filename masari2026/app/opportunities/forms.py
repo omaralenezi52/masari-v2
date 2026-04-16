@@ -18,7 +18,7 @@ class OpportunityForm(FlaskForm):
         ('دورة', 'دورة تدريبية'),
         ('تطوع', 'عمل تطوعي'),
         ('تمهير', 'تمهير'),
-        ('عمل حر', 'عمل حر / مستقل'),
+        ('هجين', 'حضوري وعن بعد'),
     ], validators=[DataRequired(message='يرجى اختيار نوع الفرصة')])
     work_type = SelectField('نمط العمل', choices=[
         ('', 'غير محدد'),
